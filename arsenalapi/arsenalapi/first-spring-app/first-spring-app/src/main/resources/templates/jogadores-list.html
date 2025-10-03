@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogadores - Cruzeiro API</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" th:href="@{/favicon_bola.png}">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                ⚽ Cruzeiro API
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/jogadores}">Jogadores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/jogadores/novo}">Adicionar Jogador</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5 pt-4">
+        <!-- Cabeçalho -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold text-primary">📋 Lista de Jogadores</h1>
+            <a th:href="@{/jogadores/novo}" class="btn btn-primary btn-lg">
+                ➕ Novo Jogador
+            </a>
+        </div>
+
+        <!-- Barra de Pesquisa -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form th:action="@{/jogadores}" method="get" class="row g-3">
+                    <div class="col-md-6">
+                        <label for="searchTerm" class="form-label fw-bold">🔍 Pesquisar Jogadores</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="searchTerm" 
+                               name="search" 
+                               th:value="${param.search}"
+                               placeholder="Digite nome, posição, nacionalidade ou categoria...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="filterPosition" class="form-label fw-bold">⚽ Posição</label>
+                        <select class="form-select" id="filterPosition" name="position">
+                            <option value="">Todas as posições</option>
+                            <option value="Goleiro" th:selected="${param.position == 'Goleiro'}">Goleiro</option>
+                            <option value="Zagueiro" th:selected="${param.position == 'Zagueiro'}">Zagueiro</option>
+                            <option value="Lateral" th:selected="${param.position == 'Lateral'}">Lateral</option>
+                            <option value="Volante" th:selected="${param.position == 'Volante'}">Volante</option>
+                            <option value="Meio-campo" th:selected="${param.position == 'Meio-campo'}">Meio-campo</option>
+                            <option value="Atacante" th:selected="${param.position == 'Atacante'}">Atacante</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="filterCategory" class="form-label fw-bold">🏆 Categoria</label>
+                        <select class="form-select" id="filterCategory" name="category">
+                            <option value="">Todas as categorias</option>
+                            <option value="principal" th:selected="${param.category == 'principal'}">Principal</option>
+                            <option value="sub-23" th:selected="${param.category == 'sub-23'}">Sub-23</option>
+                            <option value="feminino" th:selected="${param.category == 'feminino'}">Feminino</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary me-2" id="searchBtn">
+                            🔍 Pesquisar
+                        </button>
+                        <a th:href="@{/jogadores}" class="btn btn-secondary" id="clearFiltersBtn">
+                            🗑️ Limpar Filtros
+                        </a>
+                        <span class="ms-3 text-muted" th:if="${jogadores != null}">
+                            <strong th:text="${#lists.size(jogadores)}">0</strong> jogador(es) encontrado(s)
+                        </span>
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                💡 <strong>Dica:</strong> Configure os filtros desejados e clique em "Pesquisar" para aplicar
+                            </small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Data Nasc.</th>
+                                <th>Nacionalidade</th>
+                                <th>Posição</th>
+                                <th>Número</th>
+                                <th>Salário</th>
+                                <th>Valor Mercado</th>
+                                <th>Valor Contrato</th>
+                                <th>Tempo Contrato</th>
+                                <th>Categoria</th>
+                                <th class="text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="j : ${jogadores}">
+                                <td th:text="${j.id}"></td>
+                                <td th:text="${j.nome}" class="fw-bold"></td>
+                                <td th:text="${#temporals.format(j.dataNascimento, 'dd/MM/yyyy')}"></td>
+                                <td>
+                                    <span class="badge bg-primary" th:text="${j.nacionalidade.pais}"></span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info" th:text="${j.posicao}"></span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary" th:text="${j.numero}"></span>
+                                </td>
+                                <td th:text="${'R$ ' + #numbers.formatDecimal(j.salario, 1, 2, 'COMMA')}"></td>
+                                <td th:text="${'R$ ' + #numbers.formatDecimal(j.valorMercado, 1, 2, 'COMMA')}"></td>
+                                <td th:text="${'R$ ' + #numbers.formatDecimal(j.valorContrato, 1, 2, 'COMMA')}"></td>
+                                <td th:text="${j.tempoContrato} + ' anos'"></td>
+                                <td>
+                                    <span class="badge bg-success" th:text="${j.categoria}"></span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a th:href="@{/jogadores/editar/{id}(id=${j.id})}" class="btn btn-warning btn-sm">
+                                            ✏️ Editar
+                                        </a>
+                                        <button type="button" class="btn btn-danger btn-sm" 
+                                                th:data-jogador-id="${j.id}" 
+                                                th:data-jogador-nome="${j.nome}"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#modalConfirmarExclusao">
+                                            🗑️ Excluir
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Mensagem quando não há jogadores -->
+                <div th:if="${#lists.isEmpty(jogadores)}" class="text-center py-5">
+                    <div class="display-4 text-muted mb-3">⚽</div>
+                    <h4 class="text-muted" th:if="${param.search == null and param.position == null and param.category == null}">
+                        Nenhum jogador cadastrado
+                    </h4>
+                    <h4 class="text-muted" th:if="${param.search != null or param.position != null or param.category != null}">
+                        Nenhum jogador encontrado
+                    </h4>
+                    <p class="text-muted" th:if="${param.search == null and param.position == null and param.category == null}">
+                        Comece adicionando seu primeiro jogador ao elenco.
+                    </p>
+                    <p class="text-muted" th:if="${param.search != null or param.position != null or param.category != null}">
+                        Tente ajustar os filtros de pesquisa ou limpe os filtros para ver todos os jogadores.
+                    </p>
+                    <a th:href="@{/jogadores/novo}" class="btn btn-primary me-2" th:if="${param.search == null and param.position == null and param.category == null}">
+                        ➕ Adicionar Primeiro Jogador
+                    </a>
+                    <a th:href="@{/jogadores}" class="btn btn-secondary">
+                        🔄 Ver Todos os Jogadores
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div class="modal fade" id="modalConfirmarExclusao" tabindex="-1" aria-labelledby="modalConfirmarExclusaoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="modalConfirmarExclusaoLabel">
+                        ⚠️ Confirmação de Exclusão
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-futbol display-1 text-danger"></i>
+                        <div class="display-4">⚽</div>
+                    </div>
+                    <h6 class="mb-3">Você tem certeza que vai excluir o <span id="nomeJogador" class="fw-bold text-primary"></span>?</h6>
+                    <p class="text-muted mb-3">Ele pode ativar o modo Messi na próxima temporada! 🚀</p>
+                    <div class="alert alert-warning">
+                        <small>
+                            <strong>⚠️ Atenção:</strong> Esta ação não pode ser desfeita. 
+                            O jogador será removido permanentemente do seu Arsenal!
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        ❌ Cancelar
+                    </button>
+                    <a id="btnConfirmarExclusao" href="#" class="btn btn-danger">
+                        🗑️ Sim, Excluir Definitivamente
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Script para o modal -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modalConfirmarExclusao = document.getElementById('modalConfirmarExclusao');
+            
+            modalConfirmarExclusao.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const jogadorId = button.getAttribute('data-jogador-id');
+                const jogadorNome = button.getAttribute('data-jogador-nome');
+                
+                const nomeJogadorSpan = modalConfirmarExclusao.querySelector('#nomeJogador');
+                const btnConfirmarExclusao = modalConfirmarExclusao.querySelector('#btnConfirmarExclusao');
+                
+                nomeJogadorSpan.textContent = jogadorNome;
+                btnConfirmarExclusao.href = '/jogadores/deletar/' + jogadorId;
+            });
+        });
+        
+        // Controle manual de filtros - pesquisa apenas no botão
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const submitBtn = document.getElementById('searchBtn');
+            const clearBtn = document.getElementById('clearFiltersBtn');
+            const positionSelect = document.getElementById('filterPosition');
+            const categorySelect = document.getElementById('filterCategory');
+            const searchInput = document.getElementById('searchTerm');
+            
+            // Detectar mudanças nos filtros
+            function checkForChanges() {
+                const currentSearch = searchInput.value.trim();
+                const currentPosition = positionSelect.value;
+                const currentCategory = categorySelect.value;
+                
+                // Verificar se há filtros ativos
+                const hasActiveFilters = currentSearch || currentPosition || currentCategory;
+                
+                if (hasActiveFilters) {
+                    // Mudar botão para amarelo quando há filtros
+                    submitBtn.innerHTML = '🔍 Aplicar Filtros';
+                    submitBtn.classList.remove('btn-primary');
+                    submitBtn.classList.add('btn-warning');
+                    
+                } else {
+                    // Voltar ao estado normal
+                    submitBtn.innerHTML = '🔍 Pesquisar';
+                    submitBtn.classList.remove('btn-warning');
+                    submitBtn.classList.add('btn-primary');
+                    
+                    // Remover badge
+                    const badge = clearBtn.querySelector('.badge');
+                    if (badge) {
+                        badge.remove();
+                    }
+                }
+            }
+            
+            // Adicionar listeners para detectar mudanças
+            searchInput.addEventListener('input', checkForChanges);
+            positionSelect.addEventListener('change', checkForChanges);
+            categorySelect.addEventListener('change', checkForChanges);
+            
+            // Verificar estado inicial
+            checkForChanges();
+        });
+    </script>
+</body>
+</html>

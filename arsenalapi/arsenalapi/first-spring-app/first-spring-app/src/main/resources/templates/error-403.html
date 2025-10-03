@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Erro ' + ${errorCode} + ' - Cruzeiro API'">Erro 403 - Cruzeiro API</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" th:href="@{/favicon_bola.png}">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                ⚽ Cruzeiro API
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/jogadores}">Jogadores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/jogadores/novo}">Adicionar Jogador</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5 pt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <!-- Ícone de Erro -->
+                <div class="mb-4">
+                    <div class="display-1 text-warning">🚫</div>
+                    <div class="display-1 text-danger">🔒</div>
+                </div>
+                
+                <!-- Código do Erro -->
+                <h1 class="display-2 fw-bold text-warning mb-3" th:text="${errorCode}">403</h1>
+                
+                <!-- Título do Erro -->
+                <h2 class="h3 text-primary mb-4" th:text="${errorTitle}">Acesso Negado</h2>
+                
+                <!-- Mensagem do Erro -->
+                <p class="lead text-muted mb-4" th:text="${errorMessage}">
+                    Você não tem permissão para acessar esta página.
+                </p>
+                
+                <!-- Sugestão -->
+                <p class="text-muted mb-5" th:text="${suggestion}">
+                    Entre em contato com o administrador se precisar de acesso.
+                </p>
+                
+                <!-- Botões de Ação -->
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="/" class="btn btn-primary btn-lg px-4">
+                        🏠 Ir para Início
+                    </a>
+                    <a th:href="@{/jogadores}" class="btn btn-outline-primary btn-lg px-4">
+                        👥 Ver Jogadores
+                    </a>
+                    <button onclick="history.back()" class="btn btn-outline-secondary btn-lg px-4">
+                        ⬅️ Voltar
+                    </button>
+                </div>
+                
+                <!-- Informações Adicionais -->
+                <div class="mt-5">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title text-muted">🔐 Sobre o acesso:</h6>
+                            <ul class="list-unstyled text-start">
+                                <li class="mb-2">• Esta página pode estar restrita a administradores</li>
+                                <li class="mb-2">• Você pode precisar fazer login primeiro</li>
+                                <li class="mb-2">• Verifique se você tem as permissões necessárias</li>
+                                <li class="mb-0">• Entre em contato com o suporte se precisar de ajuda</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>⚽ Cruzeiro API</h5>
+                    <p class="text-muted">Sistema de gerenciamento de jogadores profissional</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted mb-0">&copy; 2024 Cruzeiro API. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

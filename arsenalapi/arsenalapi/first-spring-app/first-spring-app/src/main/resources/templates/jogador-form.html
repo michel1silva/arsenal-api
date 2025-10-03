@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${jogador.id == null ? 'Novo Jogador' : 'Editar Jogador'} + ' - Cruzeiro API'">Cadastro de Jogador - Cruzeiro API</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" th:href="@{/favicon_bola.png}">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                ⚽ Cruzeiro API
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/jogadores}">Jogadores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/jogadores/novo}">Adicionar Jogador</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5 pt-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="card-title mb-0">
+                            <span th:text="${jogador.id == null ? '➕ Novo Jogador' : '✏️ Editar Jogador'}">Cadastro de Jogador</span>
+                        </h2>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Mensagem de erro -->
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <strong>⚠️ Erro:</strong> <span th:text="${error}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+
+                        <form th:action="@{/jogadores}" th:object="${jogador}" method="post">
+                            <input type="hidden" th:field="*{id}"/>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">👤 Nome Completo</label>
+                                        <input type="text" class="form-control" th:field="*{nome}" required 
+                                               placeholder="Digite o nome completo do jogador"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">📅 Data de Nascimento</label>
+                                        <input type="date" class="form-control" th:field="*{dataNascimento}" required/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">🌍 Nacionalidade</label>
+                                        <select class="form-select" name="nacionalidadeIso2" required>
+                                            <option value="">Selecione a nacionalidade</option>
+                                            <option th:each="nacionalidade : ${nacionalidades}" 
+                                                    th:value="${nacionalidade.iso2}"
+                                                    th:text="${nacionalidade.pais + ' (' + nacionalidade.gentilicoMasc + ')'}"
+                                                    th:selected="${jogador.nacionalidade != null && jogador.nacionalidade.iso2 == nacionalidade.iso2}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">⚽ Posição</label>
+                                        <select class="form-select" th:field="*{posicao}" required 
+                                                onchange="validatePosition(this)">
+                                            <option value="">Selecione a posição</option>
+                                            <option value="Goleiro">Goleiro</option>
+                                            <option value="Zagueiro">Zagueiro</option>
+                                            <option value="Lateral">Lateral</option>
+                                            <option value="Volante">Volante</option>
+                                            <option value="Meio-campo">Meio-campo</option>
+                                            <option value="Atacante">Atacante</option>
+                                        </select>
+                                        <div class="invalid-feedback" id="posicaoError">
+                                            Selecione uma posição válida.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">🔢 Número da Camisa</label>
+                                        <input type="number" class="form-control" th:field="*{numero}" required 
+                                               min="1" max="99" placeholder="1-99"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">💰 Salário Mensal (R$)</label>
+                                        <input type="number" step="0.01" class="form-control" th:field="*{salario}" required 
+                                               placeholder="0.00"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">📊 Valor de Mercado (R$)</label>
+                                        <input type="number" step="0.01" class="form-control" th:field="*{valorMercado}" required 
+                                               placeholder="0.00"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">💼 Valor do Contrato (R$)</label>
+                                        <input type="number" step="0.01" class="form-control" th:field="*{valorContrato}" required 
+                                               placeholder="0.00"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">⏰ Tempo de Contrato (anos)</label>
+                                        <input type="number" class="form-control" th:field="*{tempoContrato}" required 
+                                               min="1" max="10" placeholder="1-10"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">🏆 Categoria</label>
+                                        <select class="form-select" th:field="*{categoria}" required 
+                                                onchange="validateCategoria(this)">
+                                            <option value="">Selecione a categoria</option>
+                                            <option value="principal">Principal</option>
+                                            <option value="sub-23">Sub-23</option>
+                                            <option value="feminino">Feminino</option>
+                                        </select>
+                                        <div class="invalid-feedback" id="categoriaError">
+                                            Selecione uma categoria válida.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-3 justify-content-end">
+                                <a th:href="@{/jogadores}" class="btn btn-secondary btn-lg px-4">
+                                    ❌ Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-success btn-lg px-4">
+                                    <span th:text="${jogador.id == null ? '➕ Cadastrar' : '💾 Salvar'}">Salvar</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Erros de Validação -->
+    <div class="modal fade" id="modalErrosValidacao" tabindex="-1" aria-labelledby="modalErrosValidacaoLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="modalErrosValidacaoLabel">
+                        ⚠️ Campos Alterados Não Válidos
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning mb-3" role="alert">
+                        <h6 class="alert-heading mb-2">🔍 Validação de Campos</h6>
+                        <p class="mb-0">Os seguintes campos precisam ser corrigidos antes de continuar:</p>
+                    </div>
+                    <div id="listaErros" class="mb-3">
+                        <!-- Lista de erros será preenchida via JavaScript -->
+                    </div>
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title text-muted mb-2">💡 Dicas para correção:</h6>
+                            <ul class="list-unstyled mb-0 small">
+                                <li class="mb-1">• Verifique se todos os campos obrigatórios estão preenchidos</li>
+                                <li class="mb-1">• Números devem ser maiores que zero</li>
+                                <li class="mb-1">• Número da camisa deve estar entre 1 e 99</li>
+                                <li class="mb-1">• Selecione posições e categorias válidas</li>
+                                <li class="mb-0">• Campos com borda vermelha precisam de correção</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                        ✅ Entendi, vou corrigir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Script para validação -->
+    <script>
+        function validatePosition(selectElement) {
+            const posicoesValidas = ["Goleiro", "Zagueiro", "Lateral", "Volante", "Meio-campo", "Atacante"];
+            const selectedValue = selectElement.value;
+            
+            if (selectedValue === "" || !posicoesValidas.includes(selectedValue)) {
+                selectElement.classList.add('is-invalid');
+                selectElement.classList.remove('is-valid');
+            } else {
+                selectElement.classList.remove('is-invalid');
+                selectElement.classList.add('is-valid');
+            }
+        }
+        
+        // Validação no submit do formulário
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                let hasErrors = false;
+                let errors = [];
+                
+                // Validar posição
+                const posicaoSelect = document.querySelector('select[name="posicao"]');
+                validatePosition(posicaoSelect);
+                
+                // Validar categoria
+                const categoriaSelect = document.querySelector('select[name="categoria"]');
+                validateCategoria(categoriaSelect);
+                
+                // Validar nome
+                const nomeInput = document.querySelector('input[name="nome"]');
+                if (!nomeInput.value || nomeInput.value.trim() === '') {
+                    nomeInput.classList.add('is-invalid');
+                    errors.push('Nome é obrigatório');
+                } else {
+                    nomeInput.classList.remove('is-invalid');
+                    nomeInput.classList.add('is-valid');
+                }
+                
+                // Validar data de nascimento
+                const dataNascimentoInput = document.querySelector('input[name="dataNascimento"]');
+                if (!dataNascimentoInput.value) {
+                    dataNascimentoInput.classList.add('is-invalid');
+                    errors.push('Data de nascimento é obrigatória');
+                } else {
+                    dataNascimentoInput.classList.remove('is-invalid');
+                    dataNascimentoInput.classList.add('is-valid');
+                }
+                
+                // Validar nacionalidade
+                const nacionalidadeSelect = document.querySelector('select[name="nacionalidadeIso2"]');
+                if (!nacionalidadeSelect.value) {
+                    nacionalidadeSelect.classList.add('is-invalid');
+                    errors.push('Nacionalidade é obrigatória');
+                } else {
+                    nacionalidadeSelect.classList.remove('is-invalid');
+                    nacionalidadeSelect.classList.add('is-valid');
+                }
+                
+                // Validar número da camisa
+                const numeroInput = document.querySelector('input[name="numero"]');
+                if (!numeroInput.value || numeroInput.value < 1 || numeroInput.value > 99) {
+                    numeroInput.classList.add('is-invalid');
+                    errors.push('Número da camisa deve estar entre 1 e 99');
+                } else {
+                    numeroInput.classList.remove('is-invalid');
+                    numeroInput.classList.add('is-valid');
+                }
+                
+                // Validar salário
+                const salarioInput = document.querySelector('input[name="salario"]');
+                if (!salarioInput.value || salarioInput.value <= 0) {
+                    salarioInput.classList.add('is-invalid');
+                    errors.push('Salário deve ser maior que zero');
+                } else {
+                    salarioInput.classList.remove('is-invalid');
+                    salarioInput.classList.add('is-valid');
+                }
+                
+                // Validar valor de mercado
+                const valorMercadoInput = document.querySelector('input[name="valorMercado"]');
+                if (!valorMercadoInput.value || valorMercadoInput.value <= 0) {
+                    valorMercadoInput.classList.add('is-invalid');
+                    errors.push('Valor de mercado deve ser maior que zero');
+                } else {
+                    valorMercadoInput.classList.remove('is-invalid');
+                    valorMercadoInput.classList.add('is-valid');
+                }
+                
+                // Validar valor do contrato
+                const valorContratoInput = document.querySelector('input[name="valorContrato"]');
+                if (!valorContratoInput.value || valorContratoInput.value <= 0) {
+                    valorContratoInput.classList.add('is-invalid');
+                    errors.push('Valor do contrato deve ser maior que zero');
+                } else {
+                    valorContratoInput.classList.remove('is-invalid');
+                    valorContratoInput.classList.add('is-valid');
+                }
+                
+                // Validar tempo de contrato
+                const tempoContratoInput = document.querySelector('input[name="tempoContrato"]');
+                if (!tempoContratoInput.value || tempoContratoInput.value < 1 || tempoContratoInput.value > 10) {
+                    tempoContratoInput.classList.add('is-invalid');
+                    errors.push('Tempo de contrato deve estar entre 1 e 10 anos');
+                } else {
+                    tempoContratoInput.classList.remove('is-invalid');
+                    tempoContratoInput.classList.add('is-valid');
+                }
+                
+                // Verificar campos de seleção
+                if (posicaoSelect.classList.contains('is-invalid')) {
+                    errors.push('Selecione uma posição válida');
+                }
+                
+                if (categoriaSelect.classList.contains('is-invalid')) {
+                    errors.push('Selecione uma categoria válida');
+                }
+                
+                if (errors.length > 0) {
+                    e.preventDefault();
+                    showValidationErrors(errors);
+                    return false;
+                }
+            });
+        });
+        
+        function validateCategoria(selectElement) {
+            const categoriasValidas = ["principal", "sub-23", "feminino"];
+            const selectedValue = selectElement.value;
+            
+            if (selectedValue === "" || !categoriasValidas.includes(selectedValue)) {
+                selectElement.classList.add('is-invalid');
+                selectElement.classList.remove('is-valid');
+            } else {
+                selectElement.classList.remove('is-invalid');
+                selectElement.classList.add('is-valid');
+            }
+        }
+        
+        function showValidationErrors(errors) {
+            // Criar HTML para a lista de erros
+            let errorsHtml = '<div class="list-group">';
+            errors.forEach((error, index) => {
+                errorsHtml += `
+                    <div class="list-group-item list-group-item-danger d-flex align-items-center">
+                        <span class="badge bg-danger me-2">${index + 1}</span>
+                        <span>${error}</span>
+                    </div>
+                `;
+            });
+            errorsHtml += '</div>';
+            
+            // Inserir a lista de erros no modal
+            document.getElementById('listaErros').innerHTML = errorsHtml;
+            
+            // Mostrar o modal
+            const modal = new bootstrap.Modal(document.getElementById('modalErrosValidacao'));
+            modal.show();
+            
+            // Focar no primeiro campo inválido após fechar o modal
+            modal._element.addEventListener('hidden.bs.modal', function() {
+                const firstInvalidField = document.querySelector('.is-invalid');
+                if (firstInvalidField) {
+                    firstInvalidField.focus();
+                    firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        }
+    </script>
+</body>
+</html>

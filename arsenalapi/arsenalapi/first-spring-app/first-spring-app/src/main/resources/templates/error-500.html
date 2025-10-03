@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Erro ' + ${errorCode} + ' - Cruzeiro API'">Erro 500 - Cruzeiro API</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" th:href="@{/favicon_bola.png}">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                ⚽ Cruzeiro API
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/jogadores}">Jogadores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/jogadores/novo}">Adicionar Jogador</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5 pt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <!-- Ícone de Erro -->
+                <div class="mb-4">
+                    <div class="display-1 text-danger">⚠️</div>
+                    <div class="display-1 text-warning">🔧</div>
+                </div>
+                
+                <!-- Código do Erro -->
+                <h1 class="display-2 fw-bold text-danger mb-3" th:text="${errorCode}">500</h1>
+                
+                <!-- Título do Erro -->
+                <h2 class="h3 text-primary mb-4" th:text="${errorTitle}">Erro Interno do Servidor</h2>
+                
+                <!-- Mensagem do Erro -->
+                <p class="lead text-muted mb-4" th:text="${errorMessage}">
+                    Algo deu errado no servidor. Nossa equipe foi notificada.
+                </p>
+                
+                <!-- Sugestão -->
+                <p class="text-muted mb-5" th:text="${suggestion}">
+                    Tente novamente em alguns minutos ou entre em contato conosco.
+                </p>
+                
+                <!-- Botões de Ação -->
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="/" class="btn btn-primary btn-lg px-4">
+                        🏠 Ir para Início
+                    </a>
+                    <button onclick="location.reload()" class="btn btn-outline-primary btn-lg px-4">
+                        🔄 Tentar Novamente
+                    </button>
+                    <button onclick="history.back()" class="btn btn-outline-secondary btn-lg px-4">
+                        ⬅️ Voltar
+                    </button>
+                </div>
+                
+                <!-- Informações Adicionais -->
+                <div class="mt-5">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title text-muted">🛠️ O que pode ter acontecido:</h6>
+                            <ul class="list-unstyled text-start">
+                                <li class="mb-2">• Problema temporário no servidor</li>
+                                <li class="mb-2">• Manutenção programada em andamento</li>
+                                <li class="mb-2">• Sobrecarga momentânea do sistema</li>
+                                <li class="mb-0">• Erro interno que será corrigido em breve</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>⚽ Cruzeiro API</h5>
+                    <p class="text-muted">Sistema de gerenciamento de jogadores profissional</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted mb-0">&copy; 2024 Cruzeiro API. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
